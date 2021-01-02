@@ -34,11 +34,21 @@ def your_url():
         else:
             f = request.files['file']
             full_name = request.form['code'] + secure_filename(f.filename)      # Making the file name a combination of the code and the original filename
-            f.save('/Users/michael/documents/github/Flask-Projects' + full_name)
-            files[request.form['code']] = {'file':full_name}
+            f.save('/Users/michael/documents/github/Flask-Projects/' + full_name)
+            urls[request.form['code']] = {'file':full_name}
 
         with open('urls.json','w') as url_file:
             json.dump(urls, url_file)
         return render_template('your_url.html', code=request.form['code'])      # request.args requests the code arguement from the form and displays it
     else:
         return redirect(url_for('home'))
+
+# variable response
+@app.route('/<string:code>')
+def redirect_to_urls(code):
+    if os.path.exists('urls.json'):         # Check if json file exists
+        with open('urls.json') as urls_file:        # Open json file
+            urls = json.load(urls_file)         # Load json file ino urls var
+            if code in urls.keys():         # If the website extension is found in the keys of the dictionary...
+                if 'url' in urls[code].keys():           # ... and if that code translates to a url address...
+                    return redirect(urls[code]['url'])          # return the redirect to the user to the corresponding address.
